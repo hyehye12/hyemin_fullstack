@@ -1,7 +1,6 @@
 # Full-Stack Developer Portfolio
 
 곽혜민 풀스택 개발자 포트폴리오 사이트 (React + TypeScript + Tailwind CSS + Vite).
-임베디드 포트폴리오(`hyehye12.github.io`)와 같은 디자인에 포인트 색만 파란색(`#3b82f6`)으로 바꾼 버전입니다.
 
 ## 실행
 
