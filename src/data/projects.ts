@@ -42,7 +42,7 @@ export const projects: Project[] = [
     description: '노트를 저장하면 복습 일정이 자동으로 만들어지고, 복습 시점에 웹 푸시 알림을 받아 백지 테스트와 AI 퀴즈로 기억을 확인하는 학습 서비스입니다. Next.js App Router와 Supabase(Postgres·Auth·RLS·RPC)로 구성했고, 저는 노트 에디터와 복습·알림 흐름, 그리고 이를 뒷받침하는 DB 함수와 CI/CD를 맡았습니다.',
     category: 'FULL-STACK / NEXT.JS · SUPABASE',
     tags: ['Next.js 15', 'React 19', 'TypeScript', 'Supabase', 'PostgreSQL', 'TipTap', 'Web Push', 'Vitest', 'Playwright', 'GitHub Actions'],
-    image: 'https://raw.githubusercontent.com/T-in-meet/Woodpecker/main/public/og-image.png',
+    image: '/images/woodpecker_logo.png',
     fallback: 'web', github: 'https://github.com/T-in-meet/Woodpecker',
     role: '노트 에디터 · 복습 스케줄링 · 알림 · CI/CD',
     period: '2026.03 ~ 2026.05', team: '팀 프로젝트',
@@ -94,7 +94,7 @@ export const projects: Project[] = [
     description: '영화 속 장소를 직접 찾아가고 싶은 사람들이 촬영지 정보를 확인하고, 다녀온 사진을 공유하는 커뮤니티입니다. React 프론트엔드와 NestJS 백엔드로 구성했으며, 프론트엔드 구조 설계와 공통 컴포넌트·주요 페이지, 그리고 LLM으로 영화별 촬영지를 받아오는 API와 북마크 기능을 맡았습니다.',
     category: 'FULL-STACK / REACT · NESTJS',
     tags: ['React', 'TypeScript', 'Tailwind CSS', 'NestJS', 'TypeORM', 'MySQL', 'OpenAI API', 'TMDB API', 'Zod'],
-    image: 'https://github.com/user-attachments/assets/813c2753-09a3-4e94-a10e-f4ac88879a60',
+    image: '/images/cinetrip_logo.png',
     fallback: 'web', github: 'https://github.com/chiro-J/Project-CineTrip',
     role: '프론트엔드 구조 · 공통 컴포넌트 · 페이지 · 촬영지/북마크 API',
     period: '2025.08 ~ 2025.09', team: '팀 프로젝트',
@@ -107,10 +107,10 @@ export const projects: Project[] = [
       '영화 북마크 기능을 프론트엔드와 백엔드(bookmark 모듈)까지 구현'
     ],
     screens: [
-      { label: '메인 피드', src: 'https://github.com/user-attachments/assets/a0fbf36b-32e8-407d-96a1-7e5544510a8d' },
-      { label: '영화 검색', src: 'https://github.com/user-attachments/assets/5be01ca0-7f6c-41dd-833b-b7bc0ab33e99' },
-      { label: '갤러리', src: 'https://github.com/user-attachments/assets/d0192722-542c-4a61-9ed5-ea6f5ef54ad0' },
-      { label: '내 프로필', src: 'https://github.com/user-attachments/assets/12939295-d90f-4978-8ce4-6c6e752a52df' }
+      { label: '메인 피드', src: '/images/cinetrip_main.png' },
+      { label: '영화 검색', src: '/images/cinetrip_movie.png' },
+      { label: '갤러리', src: '/images/cinetrip_gallery.png' },
+      { label: '내 프로필', src: '/images/cinetrip_profile.png' }
     ],
     solving: [
       {
@@ -133,7 +133,7 @@ export const projects: Project[] = [
     description: '사용자가 쓴 글이나 일기의 감정을 OpenAI API로 분석하고, 감정에 맞는 음악을 iTunes에서 찾아 추천하는 웹앱입니다. 감정 일기를 저장하고 대시보드로 감정 변화를 확인할 수 있습니다. AI 연동과 웹 서비스의 전체 흐름을 직접 익히는 것을 목표로 혼자 개발했습니다.',
     category: 'FULL-STACK / PERSONAL',
     tags: ['React', 'TypeScript', 'Tailwind CSS', 'Express', 'Supabase', 'JWT', 'OpenAI API', 'iTunes Search API', 'Vercel'],
-    image: 'https://github.com/user-attachments/assets/a22738c0-1138-4cc0-9f13-db151c3ff2d8',
+    image: '/images/emotional_music_main.png',
     fallback: 'ai', github: 'https://github.com/hyehye12/EmotionalMusic',
     role: '전체 구현 (기획 · 프론트엔드 · 백엔드 · 배포)',
     period: '2025.07 ~ 2025.08', team: '개인 프로젝트',
@@ -146,9 +146,9 @@ export const projects: Project[] = [
       'Vercel에 프론트엔드와 API를 함께 배포'
     ],
     screens: [
-      { label: 'AI 감정 분석 결과', src: 'https://github.com/user-attachments/assets/7b0a6692-2263-4cb8-8e37-209bd66532e5' },
-      { label: '음악 추천 결과', src: 'https://github.com/user-attachments/assets/bf3e874c-a9ca-492b-a1f2-011e53dae89e' },
-      { label: '대시보드', src: 'https://github.com/user-attachments/assets/5363fbbc-01aa-4776-9c1f-22287268bfa4' }
+      { label: 'AI 감정 분석 결과', src: '/images/emotional_music_result.png' },
+      { label: '음악 추천 결과', src: '/images/emotional_music_music_result.png' },
+      { label: '대시보드', src: '/images/emotional_music_mypage.png' }
     ],
     solving: [
       {
