@@ -8,6 +8,8 @@ import HeroIntro from './HeroIntro';
 
 const userGitHub = 'https://github.com/hyehye12';
 const projectCount = String(projects.length).padStart(2, '0');
+// public 폴더 파일('/images/..')은 배포 경로(/hyemin_fullstack/)를 붙여야 열립니다. 외부 URL은 그대로 둡니다.
+const asset = (src: string) => src.startsWith('/') && !src.startsWith('//') ? import.meta.env.BASE_URL + src.slice(1) : src;
 
 function Header() {
   const [open, setOpen] = useState(false);
@@ -40,12 +42,12 @@ function ImagePanel({ project, detail = false }: { project: Project; detail?: bo
   useEffect(() => setFailed(false), [project.image]);
   if (project.videos?.length) return <div className={`project-video-list ${detail ? 'detail-video-list' : ''}`}>
     {(detail ? project.videos : project.videos.slice(0, 1)).map(video => <figure key={video.src}>
-      <video controls playsInline preload="metadata" aria-label={video.label} src={`${video.src}#t=0.1`} />
+      <video controls playsInline preload="metadata" aria-label={video.label} src={`${asset(video.src)}#t=0.1`} />
       <figcaption>{video.label}</figcaption>
     </figure>)}
   </div>;
   return <div className={`project-visual visual-${project.fallback} ${detail ? 'detail-visual' : ''}`}>
-    {project.image && !failed ? <img src={project.image} alt={`${project.title} 서비스 화면`} loading="lazy" onError={() => setFailed(true)} /> : <div className="visual-fallback" aria-hidden="true">
+    {project.image && !failed ? <img src={asset(project.image)} alt={`${project.title} 서비스 화면`} loading="lazy" onError={() => setFailed(true)} /> : <div className="visual-fallback" aria-hidden="true">
       <span className="circuit-lines"/>
       {project.fallback === 'web' && <Globe size={72} strokeWidth={1.1} />}
       {project.fallback === 'server' && <Server size={72} strokeWidth={1.1} />}
@@ -179,7 +181,7 @@ function ScreenList({ project }: { project: Project }) {
   if (!project.screens?.length) return null;
   return <section className="detail-group"><div className="section-label">SCREENS</div><h2>주요 화면</h2>
     <div className="diagram-grid">{project.screens.map(diagram => <figure key={diagram.src}>
-      <a href={diagram.src} target="_blank" rel="noreferrer"><img src={diagram.src} alt={diagram.label} loading="lazy" /></a>
+      <a href={asset(diagram.src)} target="_blank" rel="noreferrer"><img src={asset(diagram.src)} alt={diagram.label} loading="lazy" /></a>
       <figcaption>{diagram.label}</figcaption>
     </figure>)}</div>
   </section>;

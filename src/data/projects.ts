@@ -185,5 +185,36 @@ export const projects: Project[] = [
       }
     ],
     repositoryNote: '링크는 팀 프로젝트 저장소입니다. 신고 화면, 탭·토스트·아이콘 등은 다른 팀원이 담당했습니다.'
+  },
+  {
+    slug: 'board-guard', index: '05', title: 'Board Guard',
+    subtitle: 'AI 기반 PCB 불량 검사·관리 시스템',
+    summary: '검사 결과 웹 대시보드와 Flask API, SQLite 검사 이력 저장·조회 담당',
+    description: '카메라로 PCB를 검사하고 판정 결과와 이력을 관리하는 팀 프로젝트입니다. 웹 UI·UX와 DB를 담당해, 검사 상태를 실시간으로 확인하는 대시보드와 검사 이력을 저장·조회하는 API를 구성했습니다.',
+    category: 'WEB / FLASK · SQLITE',
+    tags: ['Python', 'Flask', 'SQLite', 'JavaScript', 'HTML / CSS', 'Jetson'],
+    image: 'https://raw.githubusercontent.com/clap-min99/board_guard/master/assets/front.gif',
+    fallback: 'server', github: 'https://github.com/clap-min99/board_guard',
+    role: '웹 UI·UX · 검사 이력 DB · API',
+    period: '', team: '팀 프로젝트',
+    features: [
+      '검사 상태 API를 500ms 간격으로 조회해 PASS / FAIL / MISSING 상태, 검사 건수, 불량률, 최근 기록을 표시하는 대시보드 구성',
+      '검사 시작·중단, 앞면·뒷면 전환을 POST 요청으로 연결하고 카메라 영상 스트림을 화면에 표시',
+      'SQLite로 검사 이력을 저장하고 판정·검사 면 조건별로 조회하는 API 구현',
+      '프로그램 시작 시 DB 집계로 누적 검사 통계 복원'
+    ],
+    solving: [
+      {
+        kind: 'design', title: '빠른 필터 전환 시 오래된 응답이 화면을 덮어쓰는 경우',
+        problem: 'PASS/FAIL·앞면/뒷면 필터를 빠르게 바꾸면 먼저 보낸 요청의 응답이 나중에 도착해 현재 필터와 다른 목록이 표시될 수 있습니다.',
+        solution: '새 조회를 시작할 때 이전 요청을 취소하고, 응답을 그리기 전에 현재 요청의 응답인지 확인하도록 했습니다. 조회 API는 잘못된 조건에 400을 반환하고, 실패 시 화면에 재시도 버튼을 제공합니다.'
+      },
+      {
+        kind: 'design', title: '확정된 검사 결과만 이력에 저장',
+        problem: '검사를 중단하거나 앞면·뒷면을 전환하는 도중에 만들어진 결과가 저장되면 이력과 불량률 통계가 틀어집니다.',
+        solution: 'MISSING 같은 현재 상태와 확정 결과를 구분해 새로 확정된 PASS·FAIL만 SQLite에 저장하고, 중단·전환 이전에 생성된 결과는 반영하지 않도록 검사했습니다.'
+      }
+    ],
+    repositoryNote: '링크는 팀 프로젝트 저장소입니다. AI 모델 학습·판정 알고리즘과 장비 구동은 다른 팀원이 담당했습니다.'
   }
 ];
