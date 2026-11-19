@@ -1,5 +1,7 @@
 export const profile = {
   name: "곽혜민",
+  // 프로필 카드 사진. public/images에 넣고 '/images/파일명.jpg'처럼 적으면 표시되고, 비워 두면 이니셜(HM)이 나옵니다.
+  photo: "",
   birthDate: "",
   location: "서울특별시 강남구",
   phone: "",

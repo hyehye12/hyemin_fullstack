@@ -4,7 +4,11 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, ExternalLink, FileTe
 import { projects, type Project } from './data/projects';
 import { profile } from './data/profile';
 import { contact, education, experience, type TimelineItem } from './data/site';
+import { motion } from 'motion/react';
 import HeroIntro from './HeroIntro';
+import ProfileBadge from './ProfileBadge';
+import ProjectShowcase from './ProjectShowcase';
+import BoardViewer from './BoardViewer';
 
 const userGitHub = 'https://github.com/hyehye12';
 const projectCount = String(projects.length).padStart(2, '0');
@@ -46,7 +50,7 @@ function ImagePanel({ project, detail = false }: { project: Project; detail?: bo
       <figcaption>{video.label}</figcaption>
     </figure>)}
   </div>;
-  return <div className={`project-visual visual-${project.fallback} ${detail ? 'detail-visual' : ''}`}>
+  return <div className={`project-visual visual-${project.fallback} ${project.imageFit === 'contain' ? 'visual-contain' : ''} ${detail ? 'detail-visual' : ''}`}>
     {project.image && !failed ? <img src={asset(project.image)} alt={`${project.title} 서비스 화면`} loading="lazy" onError={() => setFailed(true)} /> : <div className="visual-fallback" aria-hidden="true">
       <span className="circuit-lines"/>
       {project.fallback === 'web' && <Globe size={72} strokeWidth={1.1} />}
@@ -58,15 +62,20 @@ function ImagePanel({ project, detail = false }: { project: Project; detail?: bo
   </div>;
 }
 
-function ProjectCard({ project }: { project: Project }) {
-  return <article className="project-card group">
+function ProjectCard({ project, order = 0 }: { project: Project; order?: number }) {
+  return <motion.article className="project-card group"
+    initial={{ opacity: 0, y: 36 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.2 }}
+    transition={{ duration: 0.6, delay: (order % 2) * 0.12, ease: [0.22, 1, 0.36, 1] }}>
     {project.videos?.length ? <ImagePanel project={project} /> : <Link to={`/projects/${project.slug}`} aria-label={`${project.title} 상세 보기`}><ImagePanel project={project} /></Link>}
     <Link to={`/projects/${project.slug}`} className="project-card-link">
     <div className="project-card-meta"><span>{project.category}</span><ArrowUpRight size={17}/></div>
     <h3>{project.title}</h3><p>{project.summary}</p><p className="project-role">담당 · {project.role}</p>
+    {project.docs?.length ? <p className="project-docs"><FileText size={14} strokeWidth={1.8} aria-hidden="true" /><span>문서화</span>{project.docs.map(doc => doc.title).join(' · ')}</p> : null}
     <div className="tag-list">{project.tags.slice(0,4).map(tag => <span className="tag" key={tag}>{tag}</span>)}</div>
     </Link>
-  </article>;
+  </motion.article>;
 }
 
 function AboutMe() {
@@ -78,15 +87,22 @@ function AboutMe() {
     { label: '이메일', value: profile.email, Icon: Mail },
     { label: '학력', value: profile.education, Icon: GraduationCap },
   ];
+  // 값을 채운 항목만 보여줍니다. 빈 칸("—")이 미완성처럼 보이지 않도록 profile.ts에서 채우면 자동으로 나타납니다.
+  const filled = fields.filter(field => field.value.trim());
   return <section className="about-section page-width" id="about" aria-labelledby="about-heading">
-    <div className="about-heading"><span className="section-label">PROFILE</span><h2 id="about-heading">ABOUT ME</h2></div>
-    {profile.introduction.trim() && <p className="about-introduction">{profile.introduction}</p>}
-    <dl className="profile-grid">
-      {fields.map(({ label, value, Icon }) => <div className="profile-item" key={label}>
-        <Icon className="profile-icon" size={28} strokeWidth={1.6} aria-hidden="true" />
-        <div><dt>{label}</dt><dd>{value.trim() || <span className="profile-empty" aria-label="미입력">—</span>}</dd></div>
-      </div>)}
-    </dl>
+    <div className="about-layout">
+      <div className="about-text">
+        <div className="about-heading"><span className="section-label">PROFILE</span><h2 id="about-heading">ABOUT ME</h2></div>
+        {profile.introduction.trim() && <p className="about-introduction">{profile.introduction}</p>}
+        <dl className="profile-grid">
+          {filled.map(({ label, value, Icon }) => <div className="profile-item" key={label}>
+            <Icon className="profile-icon" size={20} strokeWidth={1.6} aria-hidden="true" />
+            <div><dt>{label}</dt><dd>{label === '이메일' ? <a href={`mailto:${value}`}>{value}</a> : value}</dd></div>
+          </div>)}
+        </dl>
+      </div>
+      <ProfileBadge />
+    </div>
   </section>;
 }
 
@@ -110,9 +126,10 @@ function Home() {
 
     <AboutMe />
 
-    <section className="section projects-section" id="projects"><div className="page-width">
-      <div className="section-heading"><div><div className="section-label">01 / SELECTED WORK</div><h2>Selected <span>Projects.</span></h2><p>프로젝트별 구현 내용과 담당 업무를 정리했습니다.</p></div><span className="section-counter">{String(featuredProjects.length).padStart(2, '0')} FEATURED / {projectCount} TOTAL</span></div>
-      <div className="project-grid">{featuredProjects.map(project => <ProjectCard key={project.slug} project={project}/>)}</div>
+    <section className="section projects-section" id="projects">
+      <ProjectShowcase featured={featuredProjects.length} total={projects.length} />
+      <div className="page-width">
+      <div className="project-grid">{featuredProjects.map((project, index) => <ProjectCard key={project.slug} project={project} order={index}/>)}</div>
       {otherProjects.length > 0 && <>
         <div className="projects-toggle-row">
           <button className="projects-toggle" type="button" aria-expanded={showMore} aria-controls="other-projects" onClick={() => setShowMore(value => !value)}>
@@ -120,7 +137,7 @@ function Home() {
           </button>
         </div>
         <div id="other-projects" hidden={!showMore}>
-          {showMore && <><h3 className="other-projects-heading">Other Projects</h3><div className="project-grid">{otherProjects.map(project => <ProjectCard key={project.slug} project={project}/>)}</div></>}
+          {showMore && <><h3 className="other-projects-heading">Other Projects</h3><div className="project-grid">{otherProjects.map((project, index) => <ProjectCard key={project.slug} project={project} order={index}/>)}</div></>}
         </div>
       </>}
     </div></section>
@@ -177,6 +194,36 @@ function SolvingList({ project }: { project: Project }) {
   </section>;
 }
 
+function DesignBoards({ project }: { project: Project }) {
+  if (!project.boards?.length) return null;
+  return <section className="detail-group"><div className="section-label">DESIGN</div><h2>화면 설계</h2>
+    <p className="docs-intro">Figma로 서비스 전체 와이어프레임과 UI를 직접 설계했습니다. 화면 사이의 이동 흐름까지 연결해 두고, 팀은 이 설계를 기준으로 기능과 API 범위를 나눠 개발했습니다.</p>
+    {project.boards.map(board => <BoardViewer key={board.src} board={board} />)}
+  </section>;
+}
+
+function DocList({ project }: { project: Project }) {
+  if (!project.docs?.length) return null;
+  return <section className="detail-group"><div className="section-label">DOCUMENTATION</div><h2>문서화</h2>
+    <p className="docs-intro">구현만큼 중요하게 생각한 부분입니다. 팀원이 같은 기준으로 개발하고, 나중에 코드를 읽는 사람이 결정의 이유를 알 수 있도록 직접 작성한 문서입니다.</p>
+    <div className="doc-list">{project.docs.map((doc, index) => <motion.a className="doc-card" key={doc.url} href={doc.url} target="_blank" rel="noreferrer"
+      initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}>
+      <div className={`doc-sheet doc-sheet-${doc.preview ?? 'outline'}`} aria-hidden="true">
+        <div className="doc-sheet-bar"><i/><i/><i/><span>{doc.path}</span></div>
+        {doc.preview === 'tree'
+          ? <pre>{doc.outline.join('\n')}</pre>
+          : <ol>{doc.outline.map(line => <li key={line}>{line}</li>)}</ol>}
+      </div>
+      <div className="doc-body">
+        <div className="doc-title"><FileText size={17} strokeWidth={1.7} aria-hidden="true" /><h3>{doc.title}</h3><ArrowUpRight size={17} className="doc-arrow" aria-hidden="true" /></div>
+        <p>{doc.summary}</p>
+        {doc.note && <p className="doc-note">{doc.note}</p>}
+      </div>
+    </motion.a>)}</div>
+  </section>;
+}
+
 function ScreenList({ project }: { project: Project }) {
   if (!project.screens?.length) return null;
   return <section className="detail-group"><div className="section-label">SCREENS</div><h2>주요 화면</h2>
@@ -203,7 +250,9 @@ function ProjectDetail() {
     <div className="detail-layout"><aside className="detail-aside"><div className="aside-block"><span>PROJECT TYPE</span><b>{project.category}</b></div><div className="aside-block"><span>MY ROLE</span><b>{project.role}</b></div><div className="aside-block"><span>TECHNOLOGIES</span><div className="tag-list">{project.tags.map(t=><span className="tag" key={t}>{t}</span>)}</div></div>{project.period?.trim() && <div className="aside-block"><span>PERIOD</span><b>{project.period}</b></div>}{project.team?.trim() && <div className="aside-block"><span>TEAM</span><b>{project.team}</b></div>}{project.github && <a className="detail-github" href={project.github} target="_blank" rel="noreferrer"><Github size={18}/> 프로젝트 저장소 <ArrowUpRight size={17}/></a>}</aside>
       <div className="detail-body">
         <section className="detail-group"><div className="section-label">OVERVIEW</div><h2>프로젝트 소개</h2><p>{project.description}</p></section>
+        <DesignBoards project={project} />
         <section className="detail-group"><div className="section-label">MY CONTRIBUTION</div><h2>담당 업무</h2><ul className="feature-list">{project.features.map((feature,index)=><li key={feature}><span>{String(index+1).padStart(2,'0')}</span>{feature}</li>)}</ul></section>
+        <DocList project={project} />
         <ScreenList project={project} />
         <SolvingList project={project} />
         {project.repositoryNote && <section className="detail-group"><div className="section-label">REPOSITORY</div><h2>저장소 안내</h2><p>{project.repositoryNote}</p></section>}

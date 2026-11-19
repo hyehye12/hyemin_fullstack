@@ -9,6 +9,18 @@ export type Solving = {
   result?: string;
 };
 
+import type { Board } from '../BoardViewer';
+
+export type ProjectDoc = {
+  title: string;
+  path: string; // 저장소 안의 파일 경로
+  url: string; // 문서 링크 (삭제·이동된 문서는 작성 시점 커밋 링크)
+  summary: string;
+  outline: string[]; // 문서 미리보기에 보여줄 목차 또는 구조
+  preview?: 'outline' | 'tree';
+  note?: string;
+};
+
 export type Project = {
   slug: string;
   index: string;
@@ -19,6 +31,7 @@ export type Project = {
   tags: string[];
   category: string;
   image?: string;
+  imageFit?: 'cover' | 'contain';
   videos?: { label: string; src: string }[];
   // 이미지가 없거나 불러오지 못했을 때 보여줄 아이콘 종류
   fallback: 'web' | 'server' | 'mobile' | 'ai';
@@ -32,6 +45,8 @@ export type Project = {
   team?: string; // 예: '4인 팀 프로젝트' 또는 '개인 프로젝트'
   screens?: { label: string; src: string }[]; // 주요 화면 · 구성도 이미지
   solving?: Solving[];
+  boards?: Board[]; // Figma 보드 등 확대해서 보는 설계 이미지. 상세 페이지의 "화면 설계" 섹션에 표시됩니다.
+  docs?: ProjectDoc[]; // 직접 작성한 문서. 상세 페이지의 "문서화" 섹션과 카드에 표시됩니다.
 };
 
 export const projects: Project[] = [
@@ -47,6 +62,7 @@ export const projects: Project[] = [
     role: '노트 에디터 · 복습 스케줄링 · 알림 · CI/CD',
     period: '2026.03 ~ 2026.05', team: '팀 프로젝트',
     features: [
+      '개발 환경 세팅 가이드, PR 템플릿, 커밋 규칙(husky·commitlint)으로 협업 기반을 만들고, 기능 README에 데이터 흐름과 설계 결정을 기록',
       'GitHub Actions CI/CD 구성 — main 머지 시 Supabase DB 마이그레이션 자동 적용, Prettier 포맷 체크·Dependency Review·Lighthouse CI 추가',
       'TipTap 기반 노트 에디터 — 툴바, 슬래시 커맨드, 링크 편집, 실행 취소/다시 실행, 체크리스트·GFM 표의 마크다운 직렬화',
       '노트 생성과 첫 복습 일정 생성을 하나의 Postgres RPC로 묶어 원자적으로 처리',
@@ -84,21 +100,48 @@ export const projects: Project[] = [
         solution: '원격 DB 적용 이력을 확인해, 아직 적용되지 않은 파일의 타임스탬프만 뒤로 미뤄 충돌을 해소했습니다.'
       }
     ],
+    docs: [
+      {
+        title: '개발 환경 세팅 가이드',
+        path: 'README.md (초기 버전)',
+        url: 'https://github.com/T-in-meet/Woodpecker/blob/e11e9e6f05e725e29721be071bfd821c1948af3e/README.md',
+        summary: '프로젝트를 처음 세팅하면서 팀원이 같은 환경에서 바로 개발을 시작할 수 있도록, Node.js 버전 고정부터 환경 변수, Git Hook, 브랜치 전략, CI/CD, 코드 스타일, TypeScript 정책까지 한 문서로 정리했습니다.',
+        outline: ['기술 스택과 버전', 'Node.js 버전 설정 (nvm · .nvmrc)', '환경 변수 설정', 'Git Hook (husky) · 커밋 메시지 규칙', '브랜치 전략', 'CI/CD', '코드 스타일 · TypeScript 정책'],
+        note: '이후 팀에서 CONTRIBUTING.md로 옮겨 확장했고, 알림 기능을 만들면서 dev:sw 스크립트와 Vercel Cron 주기 설명을 README에 추가했습니다.'
+      },
+      {
+        title: 'PR 템플릿',
+        path: '.github/PULL_REQUEST_TEMPLATE.md',
+        url: 'https://github.com/T-in-meet/Woodpecker/blob/main/.github/PULL_REQUEST_TEMPLATE.md',
+        summary: '변경 이유와 테스트 방법을 함께 쓰게 하고, DB 마이그레이션 재현 여부와 RLS 정책 변경 요약을 체크리스트에 넣어 리뷰 기준을 맞췄습니다.',
+        outline: ['개요 · PR 유형', '관련 이슈 (closes #)', '테스트 방법', '스크린샷 (FE 변경 시)', '체크리스트 — lint · typecheck · migration · RLS']
+      },
+      {
+        title: '복습 기능 README',
+        path: 'src/features/review/README.md',
+        url: 'https://github.com/T-in-meet/Woodpecker/blob/150cd7d4d9ab41d58c45d5700b3dcd37550051d4/src/features/review/README.md',
+        summary: '백지 테스트 흐름의 데이터 흐름과 의존 RPC를 정리하고, HMAC 완료 토큰을 없앤 이유와 이메일 인증을 앱·DB 두 층에서 막는 이유를 설계 결정으로 남겼습니다.',
+        outline: ['목적', '데이터 흐름 — 진입 → 답안 제출 → 완료 RPC', '의존성', '왜 완료 토큰(HMAC) 없이 충분한가', '이메일 인증 가드 — 앱 레벨 / DB 레벨'],
+        note: '기능별 README 구조는 이후 리팩터링으로 정리되어, 작성 시점의 커밋으로 연결됩니다.'
+      }
+    ],
     resources: [{ label: '서비스 바로가기', url: 'https://woodpecker-blue.vercel.app' }],
     repositoryNote: '링크는 팀 프로젝트 저장소입니다. 인증·AI 퀴즈·노트 챗봇·관리자 기능 등은 다른 팀원이 담당했습니다.'
   },
   {
     slug: 'cinetrip', index: '02', title: 'CineTrip',
     subtitle: '영화 속 촬영지를 찾아 여행을 기록하는 커뮤니티',
-    summary: '프론트엔드 구조와 주요 페이지, LLM 촬영지 추천·북마크 API 담당',
-    description: '영화 속 장소를 직접 찾아가고 싶은 사람들이 촬영지 정보를 확인하고, 다녀온 사진을 공유하는 커뮤니티입니다. React 프론트엔드와 NestJS 백엔드로 구성했으며, 프론트엔드 구조 설계와 공통 컴포넌트·주요 페이지, 그리고 LLM으로 영화별 촬영지를 받아오는 API와 북마크 기능을 맡았습니다.',
+    summary: 'Figma 와이어프레임·UI 디자인부터 프론트엔드 구조, 주요 페이지, LLM 촬영지 추천·북마크 API까지 담당',
+    description: '영화 속 장소를 직접 찾아가고 싶은 사람들이 촬영지 정보를 확인하고, 다녀온 사진을 공유하는 커뮤니티입니다. React 프론트엔드와 NestJS 백엔드로 구성했으며, Figma로 서비스 전체 와이어프레임과 UI 디자인을 작업했고, 프론트엔드 구조 설계와 공통 컴포넌트·주요 페이지, 그리고 LLM으로 영화별 촬영지를 받아오는 API와 북마크 기능을 맡았습니다.',
     category: 'FULL-STACK / REACT · NESTJS',
     tags: ['React', 'TypeScript', 'Tailwind CSS', 'NestJS', 'TypeORM', 'MySQL', 'OpenAI API', 'TMDB API', 'Zod'],
     image: '/images/cinetrip_logo.png',
+    imageFit: 'contain',
     fallback: 'web', github: 'https://github.com/chiro-J/Project-CineTrip',
-    role: '프론트엔드 구조 · 공통 컴포넌트 · 페이지 · 촬영지/북마크 API',
+    role: '와이어프레임 · UI 디자인(Figma) · 프론트엔드 구조 · 공통 컴포넌트 · 페이지 · 촬영지/북마크 API',
     period: '2025.08 ~ 2025.09', team: '팀 프로젝트',
     features: [
+      'Figma로 서비스 전체 와이어프레임과 UI 디자인(화면설계서) 작업 — 팀이 이 화면을 기준으로 기능과 API를 나눠 개발',
       '프론트엔드 아키텍처 문서를 작성해 폴더 구조와 컴포넌트 규칙 정리',
       'Avatar·Header·UserDropdown·Nav·Checklist 공통 컴포넌트 구현',
       '갤러리, 마이 프로필, 검색 결과, 포스트 모달 페이지 구현 및 데이터가 없을 때의 화면 처리',
@@ -124,6 +167,35 @@ export const projects: Project[] = [
         solution: '먼저 DB에서 해당 영화의 촬영지를 조회하고, 없거나 재생성을 요청한 경우에만 LLM을 호출하도록 했습니다. 저장할 때는 같은 장소가 있으면 갱신하고 없으면 새로 추가합니다.'
       }
     ],
+    boards: [
+      {
+        label: '확정 · 기능 정의',
+        caption: '화면별 와이어프레임을 클릭 흐름으로 연결해 기능 범위를 확정한 Figma 페이지 — 로그인 모달, 비회원 최초 로그인 이동, 영화 상세·갤러리·프로필 수정 흐름',
+        src: '/images/cinetrip/feature-flow-2400.webp',
+        full: '/images/cinetrip/feature-flow-6000.webp',
+        width: 2400, height: 1650,
+        link: { label: 'Figma에서 보기', url: 'https://www.figma.com/design/yNXL7zAFWojHc7Ltbbd2TA/%EC%8B%9C%EB%84%A4%ED%8A%B8%EB%A6%BD-%ED%99%94%EB%A9%B4%EC%84%A4%EA%B3%84%EC%84%9C?node-id=0-1&p=f&t=hPUxnlU5IGaXRypg-0' }
+      }
+    ],
+    docs: [
+      {
+        title: 'Figma 화면설계서 (와이어프레임 · UI)',
+        path: 'Figma · 시네트립 화면설계서',
+        url: 'https://www.figma.com/design/yNXL7zAFWojHc7Ltbbd2TA/%EC%8B%9C%EB%84%A4%ED%8A%B8%EB%A6%BD-%ED%99%94%EB%A9%B4%EC%84%A4%EA%B3%84%EC%84%9C?node-id=0-1&p=f&t=hPUxnlU5IGaXRypg-0',
+        summary: '서비스 전체 화면의 와이어프레임을 잡고 UI 디자인까지 Figma로 작업했습니다. 팀은 이 화면설계서를 기준으로 페이지와 기능, API 범위를 나눠 개발했습니다.',
+        outline: ['랜딩 · 로그인 · 프로필 설정', '메인 피드', '영화 검색 · 검색 결과', '영화 상세 — 촬영지 · 추천 장소 · 사진', '갤러리 · 포스트 모달', '내 프로필 · 체크리스트']
+      },
+      {
+        title: '프론트엔드 아키텍처 문서',
+        path: 'docs/frontend-architecture.md',
+        url: 'https://github.com/chiro-J/Project-CineTrip/blob/main/docs/frontend-architecture.md',
+        summary: '개발을 시작하기 전에 페이지·컴포넌트·hooks·contexts·routes 폴더 구조와 각 페이지가 맡는 URL·화면 요소를 정리하고, 관련 컴포넌트를 기능 단위 파일로 묶는 규칙과 개발 환경을 팀과 맞췄습니다.',
+        preview: 'tree',
+        outline: ['src/', '├── pages/        # URL 단위 페이지', '│   └── movies/Detail.tsx  # /movies/:id', '├── components/   # ui · layout · 기능별', '├── hooks/  contexts/  routes/', '├── types/  utils/  data/', '└── theme/        # DaisyUI 커스터마이징'],
+        note: '팀 리뷰를 거쳐 함께 보완했고, 이 구조를 기준으로 공통 컴포넌트와 페이지를 나눠 구현했습니다.'
+      }
+    ],
+    resources: [{ label: 'Figma 화면설계서', url: 'https://www.figma.com/design/yNXL7zAFWojHc7Ltbbd2TA/%EC%8B%9C%EB%84%A4%ED%8A%B8%EB%A6%BD-%ED%99%94%EB%A9%B4%EC%84%A4%EA%B3%84%EC%84%9C?node-id=0-1&p=f&t=hPUxnlU5IGaXRypg-0' }],
     repositoryNote: '링크는 팀 프로젝트 저장소입니다. 인증, 사진 업로드(S3), 팔로우·댓글 등은 다른 팀원이 담당했습니다.'
   },
   {
@@ -138,11 +210,11 @@ export const projects: Project[] = [
     role: '전체 구현 (기획 · 프론트엔드 · 백엔드 · 배포)',
     period: '2025.07 ~ 2025.08', team: '개인 프로젝트',
     features: [
-      'OpenAI API로 텍스트·일기의 감정 레이블과 강도를 분석하는 파이프라인 구현',
-      '감정 레이블을 장르·분위기 키워드로 매핑해 iTunes Search API로 음악 추천, 30초 미리듣기 제공',
-      '감정 일기 작성·조회·수정·삭제 API와 화면 구현',
-      '감정 분포와 기간별 추이를 보여주는 대시보드 구현',
-      'Express API 서버에 JWT 인증 미들웨어를 적용해 사용자별 데이터 분리',
+      'Express 서버에서 OpenAI API를 프록시해 키를 숨기고, 감정·분석·조언·응원 네 항목을 JSON으로 받아 정리',
+      '감정별 한국어·영어 검색어를 순환하며 iTunes Search API로 국내·해외 곡을 절반씩 검색, 30초 미리듣기 제공',
+      '감정 일기 작성·조회·수정·삭제 API와 화면, (사용자, 날짜) 기준 upsert로 하루 기록 저장',
+      '최근 30일 감정 분포와 날짜별 감정 흐름을 보여주는 대시보드 구현',
+      'Supabase JWT를 검증하는 인증 미들웨어로 사용자별 데이터만 조회·수정하도록 제한',
       'Vercel에 프론트엔드와 API를 함께 배포'
     ],
     screens: [
@@ -152,10 +224,9 @@ export const projects: Project[] = [
     ],
     solving: [
       {
-        kind: 'issue', title: '추천 결과의 일관성',
-        problem: 'OpenAI 응답 형식이 매번 조금씩 달랐고, iTunes 검색 결과의 품질 편차가 커서 같은 감정에도 추천이 들쭉날쭉했습니다.',
-        solution: '감정 레이블 종류를 좁혀 응답 형식을 고정하고, 감정별로 사용할 검색 키워드를 매핑 테이블로 명시했습니다.',
-        result: '같은 감정에 대해 비슷한 분위기의 음악이 추천되도록 정리했습니다.'
+        kind: 'design', title: 'AI 응답 형식이 흔들려도 화면이 깨지지 않게 하기',
+        problem: 'OpenAI 응답이 코드블록으로 감싸져 오거나 호출·파싱에 실패하면, 감정·분석·조언을 고정된 위치에 보여주는 결과 화면이 비거나 깨질 수 있습니다.',
+        solution: '프롬프트에서 JSON 형식만 응답하도록 지정하고, 서버에서 코드블록 표시를 제거한 뒤 파싱했습니다. 실패하면 기본 감정과 안내 문구를 담은 응답을 돌려주고, 분석 결과 DB 저장 실패는 사용자 응답과 분리했습니다.'
       }
     ],
     resources: [{ label: '배포 사이트', url: 'https://emotional-music.vercel.app' }]
@@ -193,7 +264,7 @@ export const projects: Project[] = [
     description: '카메라로 PCB를 검사하고 판정 결과와 이력을 관리하는 팀 프로젝트입니다. 웹 UI·UX와 DB를 담당해, 검사 상태를 실시간으로 확인하는 대시보드와 검사 이력을 저장·조회하는 API를 구성했습니다.',
     category: 'WEB / FLASK · SQLITE',
     tags: ['Python', 'Flask', 'SQLite', 'JavaScript', 'HTML / CSS', 'Jetson'],
-    image: 'https://raw.githubusercontent.com/clap-min99/board_guard/master/assets/front.gif',
+    videos: [{ label: 'Board Guard 시연 영상', src: '/images/board_guard.mp4' }],
     fallback: 'server', github: 'https://github.com/clap-min99/board_guard',
     role: '웹 UI·UX · 검사 이력 DB · API',
     period: '', team: '팀 프로젝트',
